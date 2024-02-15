@@ -8,12 +8,11 @@ import Alert from "./components/Alert";
 import WordStats from "./components/Stats";
 import { stringify } from "querystring";
 
-
 export default function Home() {
   const [alertVisible, setAlertVisible] = useState(false);
   const [textValue, setTextValue] = useState("");
   const [summaryValue, setsummaryValue] = useState(
-    "Lorem ipsum dolor sit, amet consectetur adipisicing elit. Esse, voluptates provident quasi sunt eveniet aliquid, cupiditate  magni quidem reiciendis pariatur eligendi? Hic similique labore  dolore consequatur culpa. Reiciendis, error quisquam."
+    "Die Bunnes-Republic Deitschland iss en bissli greesser ass wie es Nochberland Polen. Deitschland hot um 82.5 millyone Eiwuhner. 75 millyone Mensche sinn Deitsche. 7.5 millyone Mensche sinn Auslenner."
   );
   const handleTyping = (event: {
     target: { value: SetStateAction<string> };
@@ -34,23 +33,18 @@ export default function Home() {
   };
 
   const summarizeContent = () => {
-
-    console.log("Hello");
-
     const summary = "summarise: " + textValue;
-    query({"inputs": textValue}).then((response) => {
-      
-      const summary = response[0].generated_text
+    query({ inputs: textValue }).then((response) => {
+      const summary = response[0].generated_text;
 
       setsummaryValue(JSON.stringify(summary));
 
       console.log(JSON.stringify(response));
     });
-  
   };
 
-  async function query(data:any) {
-    
+  async function query(data: any) {
+
     const response = await fetch(
       "https://api-inference.huggingface.co/models/mach-12/t5-small-finetuned-mlsum-de",
       {
@@ -59,8 +53,9 @@ export default function Home() {
         body: JSON.stringify(data),
       }
     );
+
     const result = await response.json();
-    return result
+    return result;
   }
 
   return (
@@ -72,7 +67,6 @@ export default function Home() {
 
       {/* Main */}
       <div className=" py-6 text-center">
-        <h2> Hi</h2>
         <h1 className="text-2xl md:text-3xl font-bold mt-6">
           ⚡ Geben Sie den Text ein, um ihn
           <span className="bg-gradient-to-r from-blue-300 to-yellow-300 bg-clip-text text-transparent">
@@ -88,9 +82,7 @@ export default function Home() {
           </p>
         </div>
 
-        <WordStats
-        text={textValue}
-        ></WordStats>
+        <WordStats text={textValue}></WordStats>
 
         {/* <div className="flex p-3 bg-white sm:bg-orange-500 md:bg-yellow-300 lg:bg-green-400 "> */}
         <div className="flex p-3 justify-center">
@@ -131,7 +123,6 @@ export default function Home() {
             Zusammenfassen
           </button>
         </div>
-          
       </div>
 
       {/* Footer */}
