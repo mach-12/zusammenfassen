@@ -6,6 +6,8 @@ import Footer from "./components/Footer";
 import { SetStateAction, useRef, useState } from "react";
 import Alert from "./components/Alert";
 import WordStats from "./components/Stats";
+import { stringify } from "querystring";
+
 
 export default function Home() {
   const [alertVisible, setAlertVisible] = useState(false);
@@ -13,7 +15,6 @@ export default function Home() {
   const [summaryValue, setsummaryValue] = useState(
     "Lorem ipsum dolor sit, amet consectetur adipisicing elit. Esse, voluptates provident quasi sunt eveniet aliquid, cupiditate  magni quidem reiciendis pariatur eligendi? Hic similique labore  dolore consequatur culpa. Reiciendis, error quisquam."
   );
-
   const handleTyping = (event: {
     target: { value: SetStateAction<string> };
   }) => {
@@ -33,19 +34,33 @@ export default function Home() {
   };
 
   const summarizeContent = () => {
-    const summary = textValue;
-    setsummaryValue(summary);
+
+    console.log("Hello");
+
+    const summary = "summarise: " + textValue;
+    query({"inputs": textValue}).then((response) => {
+      
+      const summary = response[0].generated_text
+
+      setsummaryValue(JSON.stringify(summary));
+
+      console.log(JSON.stringify(response));
+    });
+  
   };
 
-  function countWordsAndLetters(text: string): {
-    words: number;
-    letters: number;
-  } {
-    const words = text.split(/\s+/).filter((word) => word !== "").length;
-
-    const letters = text.replace(/\s+/g, "").length;
-
-    return { words, letters };
+  async function query(data:any) {
+    
+    const response = await fetch(
+      "https://api-inference.huggingface.co/models/mach-12/t5-small-finetuned-mlsum-de",
+      {
+        headers: { Authorization: `Bearer ${process.env.HUGGING_FACE_TOKEN}` },
+        method: "POST",
+        body: JSON.stringify(data),
+      }
+    );
+    const result = await response.json();
+    return result
   }
 
   return (
@@ -57,6 +72,7 @@ export default function Home() {
 
       {/* Main */}
       <div className=" py-6 text-center">
+        <h2> Hi</h2>
         <h1 className="text-2xl md:text-3xl font-bold mt-6">
           ⚡ Geben Sie den Text ein, um ihn
           <span className="bg-gradient-to-r from-blue-300 to-yellow-300 bg-clip-text text-transparent">
@@ -67,13 +83,13 @@ export default function Home() {
 
         <div className="p-8">
           <p className="text-md md:text-lg">
-            Verwenden Sie dieses KI-Tool, um schnelle Einblicke und
+            Verwenden Sie dieses AI-Tool, um schnelle Einblicke und
             Zusammenfassungen aus Ihrem Text zu erhalten.
           </p>
         </div>
+
         <WordStats
-          words={countWordsAndLetters(textValue)["words"]}
-          letters={countWordsAndLetters(textValue)["letters"]}
+        text={textValue}
         ></WordStats>
 
         {/* <div className="flex p-3 bg-white sm:bg-orange-500 md:bg-yellow-300 lg:bg-green-400 "> */}
@@ -100,7 +116,6 @@ export default function Home() {
                   fill="currentColor"
                   className="w-4 h-4"
                 >
-                  {" "}
                   <path d="M7 3.5A1.5 1.5 0 0 1 8.5 2h3.879a1.5 1.5 0 0 1 1.06.44l3.122 3.12A1.5 1.5 0 0 1 17 6.622V12.5a1.5 1.5 0 0 1-1.5 1.5h-1v-3.379a3 3 0 0 0-.879-2.121L10.5 5.379A3 3 0 0 0 8.379 4.5H7v-1Z" />{" "}
                   <path d="M4.5 6A1.5 1.5 0 0 0 3 7.5v9A1.5 1.5 0 0 0 4.5 18h7a1.5 1.5 0 0 0 1.5-1.5v-5.879a1.5 1.5 0 0 0-.44-1.06L9.44 6.439A1.5 1.5 0 0 0 8.378 6H4.5Z" />{" "}
                 </svg>
@@ -116,6 +131,7 @@ export default function Home() {
             Zusammenfassen
           </button>
         </div>
+          
       </div>
 
       {/* Footer */}
