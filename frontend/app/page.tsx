@@ -1,18 +1,16 @@
 "use client";
-import Image from "next/image";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
-
-import { SetStateAction, useRef, useState } from "react";
+import { query } from "./_request";
+import { SetStateAction, useState } from "react";
 import Alert from "./components/Alert";
 import WordStats from "./components/Stats";
-import { stringify } from "querystring";
 
 export default function Home() {
   const [alertVisible, setAlertVisible] = useState(false);
   const [textValue, setTextValue] = useState("");
   const [summaryValue, setsummaryValue] = useState(
-    "Die Bunnes-Republic Deitschland iss en bissli greesser ass wie es Nochberland Polen. Deitschland hot um 82.5 millyone Eiwuhner. 75 millyone Mensche sinn Deitsche. 7.5 millyone Mensche sinn Auslenner."
+    "Die Bunnes-Republic Deitschland iss en bissli greesser ass wie es Nochberland Polen. Deitschland hot um 82.5 millyone Eiwuhner. 75 millyone Mensche sinn Deitsche. 7.5 millyone Mensche sinn Auslenner.",
   );
   const handleTyping = (event: {
     target: { value: SetStateAction<string> };
@@ -32,31 +30,12 @@ export default function Home() {
       .catch((err) => console.error("Failed to copy:", err));
   };
 
-  const summarizeContent = () => {
+  const summarizeContent = async () => {
     const summary = "summarise: " + textValue;
-    query({ inputs: textValue }).then((response) => {
-      const summary = response[0].generated_text;
-
-      setsummaryValue(JSON.stringify(summary));
-
-      console.log(JSON.stringify(response));
-    });
+    const response = await query(summary);
+    const result = response[0]?.generated_text;
+    setsummaryValue(JSON.stringify(result));
   };
-
-  async function query(data: any) {
-
-    const response = await fetch(
-      "https://api-inference.huggingface.co/models/mach-12/t5-small-finetuned-mlsum-de",
-      {
-        headers: { Authorization: `Bearer ${process.env.HUGGING_FACE_TOKEN}` },
-        method: "POST",
-        body: JSON.stringify(data),
-      }
-    );
-
-    const result = await response.json();
-    return result;
-  }
 
   return (
     <main className="bg-base-300">
