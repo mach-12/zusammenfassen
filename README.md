@@ -2,6 +2,9 @@
 
 Fast and Effective German Summarisation service with a Custom Large Language Transformer Backend
 
+## Deployed Demo: [zusammenfassen.vercel.app](https://zusammenfassen.vercel.app/)
+Note, there might be initial latency due to HuggingFace loading the model.
+
 ## Technologies Used
 - HuggingFace Transformers
 - PyTorch
