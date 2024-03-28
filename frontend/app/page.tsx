@@ -10,7 +10,7 @@ export default function Home() {
   const [alertVisible, setAlertVisible] = useState(false);
   const [textValue, setTextValue] = useState("");
   const [summaryValue, setsummaryValue] = useState(
-    "Die Bunnes-Republic Deitschland iss en bissli greesser ass wie es Nochberland Polen. Deitschland hot um 82.5 millyone Eiwuhner. 75 millyone Mensche sinn Deitsche. 7.5 millyone Mensche sinn Auslenner.",
+    "Die Bunnes-Republic Deitschland iss en bissli greesser ass wie es Nochberland Polen. Deitschland hot um 82.5 millyone Eiwuhner. 75 millyone Mensche sinn Deitsche. 7.5 millyone Mensche sinn Auslenner."
   );
   const handleTyping = (event: {
     target: { value: SetStateAction<string> };
@@ -45,9 +45,9 @@ export default function Home() {
       {alertVisible && <Alert />}
 
       {/* Main */}
-      <div className=" py-6 text-center">
+      <div className="py-6 text-center">
         <h1 className="text-2xl md:text-3xl font-bold mt-6">
-          ⚡ Geben Sie den Text ein, um ihn
+          ⚡ Geben Sie den Text ein, um ihn &nbsp;
           <span className="bg-gradient-to-r from-blue-300 to-yellow-300 bg-clip-text text-transparent">
             zusammenzufassen
           </span>
