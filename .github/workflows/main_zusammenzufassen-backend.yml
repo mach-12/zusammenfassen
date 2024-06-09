@@ -22,6 +22,10 @@ jobs:
         with:
           python-version: '3.11'
 
+      - name: Go to backend folder
+        run: |
+          cd backend
+          
       - name: Create and start virtual environment
         run: |
           python -m venv venv
