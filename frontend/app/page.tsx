@@ -1,48 +1,78 @@
 "use client";
+
+import { useState } from "react";
+import { analyze_sentiment, summarize } from "./_request";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
-import { query } from "./_request";
-import { SetStateAction, useState } from "react";
-import Alert from "./components/Alert";
-import WordStats from "./components/Stats";
 
-export default function Home() {
-  const [alertVisible, setAlertVisible] = useState(false);
-  const [textValue, setTextValue] = useState("");
-  const [summaryValue, setsummaryValue] = useState(
+import DashboardStats from "./components/DashboardStats";
+
+import WordStats from "./components/Stats";
+import TextInputComponent from "./components/TextInputComponent";
+import Modal from "./components/Modal";
+import { InformationCircleIcon } from "@heroicons/react/24/outline";
+import { SentimentAnalysis, SentimentDetails } from "./interfaces";
+import { sentimentDetails, statsData } from "./data";
+
+export default function Analysis() {
+  const [sentimentResult, setSentimentResult] = useState<SentimentAnalysis>({
+    word_count: 32,
+    sentence_count: 4,
+    avg_word_length: 6,
+    fk_grade: 6.7,
+    gf_index: 6.53,
+    sentence_complexity: 8,
+    lexical_diversity: 0.821,
+    sentiment: 0.25,
+  });
+
+  const [sentimentInitial, setSentimentInitial] = useState<SentimentAnalysis>({
+    word_count: 32,
+    sentence_count: 4,
+    avg_word_length: 6,
+    fk_grade: 6.7,
+    gf_index: 6.53,
+    sentence_complexity: 8,
+    lexical_diversity: 0.821,
+    sentiment: 0.25,
+  });
+
+  const [textValue, setTextValue] = useState(
     "Die Bunnes-Republic Deitschland iss en bissli greesser ass wie es Nochberland Polen. Deitschland hot um 82.5 millyone Eiwuhner. 75 millyone Mensche sinn Deitsche. 7.5 millyone Mensche sinn Auslenner."
   );
-  const handleTyping = (event: {
-    target: { value: SetStateAction<string> };
-  }) => {
-    setTextValue(event.target.value);
-  };
+  const [summaryValue, setSummaryValue] = useState(
+    "Die Bunnes-Republic Deitschland iss en bissli greesser ass wie es Nochberland Polen. Deitschland hot um 82.5 millyone Eiwuhner. 75 millyone Mensche sinn Deitsche. 7.5 millyone Mensche sinn Auslenner."
+  );
 
-  const handleCopyText = () => {
-    navigator.clipboard
-      .writeText(summaryValue)
-      .then(() => {
-        setAlertVisible(true);
-        setTimeout(() => {
-          setAlertVisible(false);
-        }, 2000); // Adjust the timeout as needed
-      })
-      .catch((err) => console.error("Failed to copy:", err));
+  const [currentMetric, setCurrentMetric] = useState<
+    keyof SentimentAnalysis | null
+  >(null);
+
+  const [activeTab, setActiveTab] = useState<"result" | "initial">("result");
+
+  const currentSentiment =
+    activeTab === "result" ? sentimentResult : sentimentInitial;
+
+  const analyzeSentiment = async (textValue: string, result: string) => {
+    const response_summary = await analyze_sentiment(result);
+    const response_original = await analyze_sentiment(textValue);
+
+    setSentimentInitial(response_original);
+    setSentimentResult(response_summary);
   };
 
   const summarizeContent = async () => {
-    const summary = "summarise: " + textValue;
-    const response = await query(summary);
-    const result = response[0]?.generated_text;
-    setsummaryValue(JSON.stringify(result));
+    const response = await summarize(textValue);
+    const result = response?.summary;
+    setSummaryValue(JSON.stringify(result));
+
+    await analyzeSentiment(textValue, result);
   };
 
   return (
     <main className="bg-base-300">
       {/* Navbar */}
       <Navbar></Navbar>
-
-      {alertVisible && <Alert />}
 
       {/* Main */}
       <div className="py-6 text-center">
@@ -61,41 +91,14 @@ export default function Home() {
           </p>
         </div>
 
+        {/* Summary Component */}
         <WordStats text={textValue}></WordStats>
 
-        {/* <div className="flex p-3 bg-white sm:bg-orange-500 md:bg-yellow-300 lg:bg-green-400 "> */}
-        <div className="flex p-3 justify-center">
-          <div className="sm:flex md:flex lg:flex xl:flex mx-8 p-5">
-            {/* Input Box */}
-            <textarea
-              placeholder="text"
-              className="textarea textarea-bordered textarea-lg text-sm w-full max-w-xs"
-              value={textValue}
-              onChange={handleTyping}
-            ></textarea>
-
-            {/* Ouput */}
-            <div className="p-1 w-full border border-base-300  max-w-xs card bg-base-100 rounded-box relative">
-              <button
-                id="copyButton"
-                className="absolute top-2 right-2 p-1 bg-primary-500 hover:text-yellow-300 text-white rounded-full p- focus:outline-none"
-                onClick={handleCopyText}
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                  className="w-4 h-4"
-                >
-                  <path d="M7 3.5A1.5 1.5 0 0 1 8.5 2h3.879a1.5 1.5 0 0 1 1.06.44l3.122 3.12A1.5 1.5 0 0 1 17 6.622V12.5a1.5 1.5 0 0 1-1.5 1.5h-1v-3.379a3 3 0 0 0-.879-2.121L10.5 5.379A3 3 0 0 0 8.379 4.5H7v-1Z" />{" "}
-                  <path d="M4.5 6A1.5 1.5 0 0 0 3 7.5v9A1.5 1.5 0 0 0 4.5 18h7a1.5 1.5 0 0 0 1.5-1.5v-5.879a1.5 1.5 0 0 0-.44-1.06L9.44 6.439A1.5 1.5 0 0 0 8.378 6H4.5Z" />{" "}
-                </svg>
-              </button>
-
-              <div className="p-6 text-sm">{summaryValue}</div>
-            </div>
-          </div>
-        </div>
+        <TextInputComponent
+          textValue={textValue}
+          setTextValue={setTextValue}
+          summaryValue={summaryValue}
+        />
 
         <div className="justify-center">
           <button onClick={summarizeContent} className="btn btn-wide text-xl">
@@ -104,7 +107,106 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Footer */}
+      {/* Analysis Section */}
+      <div className="py-6 text-center">
+        <h1 className="text-2xl md:text-3xl font-bold mt-6">
+          ⚡ Analysieren
+          <span className="bg-gradient-to-r from-blue-300 to-yellow-300 bg-clip-text text-transparent">
+            &nbsp;Sie Ihren Text.
+          </span>
+        </h1>
+        <div className="p-8">
+          <p className="text-md md:text-lg">
+            Erhalten Sie mit den Sentiment-Score hinter Ihrem Text!
+          </p>
+        </div>
+      </div>
+
+      {/* Stat Data */}
+      <div className="grid lg:grid-cols-4 mt-2 md:grid-cols-2 grid-cols-1 gap-6">
+        {statsData.map((d, k) => {
+          return <DashboardStats key={k} {...d} colorIndex={k} />;
+        })}
+      </div>
+
+      {/* Sentiment Table */}
+      <div className="p-12">
+        <div role="tablist" className="tabs tabs-bordered">
+          <a
+            role="tab"
+            className={`tab ${activeTab === "initial" ? "tab-active" : ""}`}
+            onClick={() => setActiveTab("initial")}
+          >
+            Sentiment Initial
+          </a>
+          <a
+            role="tab"
+            className={`tab ${activeTab === "result" ? "tab-active" : ""}`}
+            onClick={() => setActiveTab("result")}
+          >
+            Sentiment Result
+          </a>
+        </div>
+        <div className="overflow-x-auto flex justify-center pt-6">
+          <table className="table w-auto mx-auto shadow-lg">
+            <thead>
+              <tr>
+                <th>Metric</th>
+                <th>Value</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              {Object.entries(currentSentiment).map(([key, value]) => (
+                <tr key={key}>
+                  <td>
+                    <div className="flex items-center gap-3">
+                      <div>
+                        <div className="font-bold">
+                          {sentimentDetails[
+                            key as keyof SentimentAnalysis
+                          ].fullName.toUpperCase()}
+                        </div>
+                        <div className="text-sm opacity-50">{key}</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                    <span className="text-bold text-lg">{value}</span>
+                  </td>
+                  <td>
+                    <div className="mt-4 w-12 h-12">
+                      <button
+                        className="btn btn-ghost btn-xs tooltip"
+                        data-tip="details"
+                        onClick={() =>
+                          setCurrentMetric(key as keyof SentimentAnalysis)
+                        }
+                      >
+                        <InformationCircleIcon className="w-5 h-5" />
+                      </button>
+                    </div>
+                    {currentMetric === key && (
+                      <Modal
+                        metricName={
+                          sentimentDetails[key as keyof SentimentAnalysis]
+                            .fullName
+                        }
+                        metricText={
+                          sentimentDetails[key as keyof SentimentAnalysis]
+                            .modalContent.text
+                        }
+                        setCurrentMetric={setCurrentMetric}
+                      />
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
       <Footer></Footer>
     </main>
   );
