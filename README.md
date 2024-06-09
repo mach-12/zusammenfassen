@@ -25,3 +25,13 @@ cd frontend
 npm install
 npm run dev
 ```
+
+- To run the FastAPI backend
+```bash
+cd backend
+pip install -r requirements.txt
+python main.py
+```
+
+- Add Backend Endpoint to `.env.local`
+```
