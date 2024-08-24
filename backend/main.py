@@ -130,6 +130,7 @@ async def generate_summary(params: SummarizationParams):
             num_beams=params.num_beams,
             no_repeat_ngram_size=params.no_repeat_ngram_size
         )
+
         # Decode the generated text tokens back to human-readable text
         predicted_text = tokenizer.decode(output[0], skip_special_tokens=True)
         return {"summary": predicted_text}

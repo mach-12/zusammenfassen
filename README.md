@@ -11,7 +11,7 @@ Note, there might be initial latency due to HuggingFace loading the model.
 - NextJs
 - TailwindCSS
 - DaisyUI
-- FastUI
+- FastAPI
 
 ## Implementation Details
 
